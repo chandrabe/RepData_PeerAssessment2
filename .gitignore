@@ -6,6 +6,9 @@
 
 # R data files from past sessions
 .Rdata
+.csv
+.bz2
 
 # RStudio files
 .Rproj.user/
+data/
