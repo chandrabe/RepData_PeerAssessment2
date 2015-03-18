@@ -45,15 +45,17 @@ We keep only the fields pertinent to our analysis:
 - FATALITIES: number of fatalities
 - INJURIES: number of injuries
 - PROPDMG: damage to properties in USD
-- PROPDMGEXP: magnitude for properties damage (“K” for thousands, “M” for millions, “B” for billions)
+- PROPDMGEXP: magnitude for properties damage (K for thousands, M for millions, B for billions)
 - CROPDMG: damage to crops in USD
-- CROPDMGEXP: magnitude for crops damage (“K” for thousands, “M” for millions, “B” for billions)
+- CROPDMGEXP: magnitude for crops damage (K for thousands, M for millions, B for billions)
 
 ```{r}
 noaa <- noaa_full %>% select(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP)
 ```
 
-As the magnitude for damages amount contains invalid characters and is not practical in this format for the rest of the analysis, we clean the data and convert it to a power of ten we can multiply with the damage amount to get the final damage value in USD. We consider the invalid characters to be missing data having no value.
+As the magnitude for damages amount contains invalid characters and is not practical in this format for the rest of the analysis, we clean the data and convert it to a numeric value we can multiply with the damage amount to get the final damage value in USD. We consider the invalid characters to be missing data having no value.
+
+The valid values are K for thousands, M for millions and B for billions (as specified in the National Weather Service Storm Data Documentation)
 
 ```{r}
 noaa$PROPDMGEXP <- sub("[-?+H123456789]", "0", noaa$PROPDMGEXP, ignore.case = TRUE)
@@ -72,22 +74,35 @@ noaa$CROPDMGEXP <- sub("^B$", "1000000000", noaa$CROPDMGEXP, ignore.case = TRUE)
 noaa$CROPDMGEXP <- as.numeric(noaa$CROPDMGEXP)
 ```
 
+## Results
+
+### Types of events the most harmful with respect to population health since 1950 across USA
+
+From the NOAA data, the number of injuries and fatalities are helpful to determine the impact of an event on the population health across USA since 1950.
+
+We group the data per event type and sum the number of injuries and fatalities per event type, plotting the top 10 events causing the most injuries and fatalities.
+
+#### Top 10 Events causing the most fatalities
+
 ```{r}
 event_fatalities <- noaa %>%
-                    filter(FATALITIES > 0) %>%
-                    group_by(EVTYPE) %>%
-                    summarise( FATALITIES = sum(FATALITIES, na.rm = TRUE)) %>%
-                    arrange(desc(FATALITIES)) %>%
-                    head(10)
+                      filter(FATALITIES > 0) %>%
+                      group_by(EVTYPE) %>%
+                      summarise( FATALITIES = sum(FATALITIES, na.rm = TRUE)) %>%
+                      arrange(desc(FATALITIES)) %>%
+                      head(10)
 
 
 barplot(event_fatalities$FATALITIES, names.arg=event_fatalities$EVTYPE, 
         ylab="Fatalities", 
         las=3, 
         col = "blue",
-        main="Top 10 Events causing the most fatalities")
+        ylim=c(0,6000),
+        main="Top 10 Events causing the most fatalities since 1950 across USA")
 
 ```
+
+#### Top 10 Events causing the most injuries
 
 ```{r}
 event_injuries <- noaa %>%
@@ -101,9 +116,16 @@ barplot(event_injuries$INJURIES, names.arg=event_injuries$EVTYPE,
         ylab="Injuries", 
         las=3, 
         col = "blue",
-        main="Top 10 Events causing the most injuries")
+        ylim=c(0,100000),
+        main="Top 10 Events causing the most injuries since 1950 across USA")
 
 ```
+
+### Types of events with the greatest economic consequences since 1950  across USA
+
+We can extract from the NOAA data two economic consequences across USA since 1950 to events: damages to properties and damages to crop.
+
+We group the data per event type and sum the damages to crop and properties, plotting the top 10 events causing the greatest economic consequences.
 
 ```{r}
 event_economic <- noaa %>%
@@ -113,11 +135,12 @@ event_economic <- noaa %>%
                     arrange(desc(DAMAGE)) %>%
                     head(10)
 
-barplot(event_economic$DAMAGE, names.arg=event_economic$EVTYPE, 
-        ylab="Damages Amount in USD", 
+barplot((event_economic$DAMAGE / 1000000000), names.arg=event_economic$EVTYPE, 
+        ylab="Damages Amount in Billions of USD", 
         las=3, 
         col = "blue",
-        main="Top 10 Events causing the most damages to properties and crop")
+        ylim=c(0,180),
+        main="Top 10 Events causing the most damages to properties and crop since 1950 across USA")
 
 ```
 
