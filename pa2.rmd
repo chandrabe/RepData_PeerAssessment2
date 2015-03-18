@@ -11,14 +11,14 @@ This project analyzes the U.S. National Oceanic and Atmospheric Administration's
 
 ## Data Processing
 
-### Loading required libraries
+#### Loading required libraries
 
 ```{r}
 library(dplyr, quietly = TRUE)
 library(R.utils, quietly = TRUE)
 ```
 
-### Downloading the data
+#### Downloading the data
 
 ```{r}
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
@@ -37,7 +37,7 @@ if (!file.exists("./data/repdata-data-StormData.csv")) {
 noaa_full <- read.csv("./data/repdata-data-StormData.csv")
 ```
 
-### Subsetting and cleaning the data
+#### Subsetting and cleaning the data
 
 We keep only the fields pertinent to our analysis:
 
@@ -76,13 +76,13 @@ noaa$CROPDMGEXP <- as.numeric(noaa$CROPDMGEXP)
 
 ## Results
 
-### Types of events the most harmful with respect to population health since 1950 across USA
+#### Types of events the most harmful with respect to population health since 1950 across USA
 
 From the NOAA data, the number of injuries and fatalities are helpful to determine the impact of an event on the population health across USA since 1950.
 
 We group the data per event type and sum the number of injuries and fatalities per event type, plotting the top 10 events causing the most injuries and fatalities.
 
-#### Top 10 Events causing the most fatalities
+##### Top 10 Events causing the most fatalities
 
 ```{r}
 event_fatalities <- noaa %>%
@@ -102,7 +102,7 @@ barplot(event_fatalities$FATALITIES, names.arg=event_fatalities$EVTYPE,
 
 ```
 
-#### Top 10 Events causing the most injuries
+##### Top 10 Events causing the most injuries
 
 ```{r}
 event_injuries <- noaa %>%
@@ -121,7 +121,7 @@ barplot(event_injuries$INJURIES, names.arg=event_injuries$EVTYPE,
 
 ```
 
-### Types of events with the greatest economic consequences since 1950  across USA
+#### Types of events with the greatest economic consequences since 1950  across USA
 
 We can extract from the NOAA data two economic consequences across USA since 1950 to events: damages to properties and damages to crop.
 
@@ -140,7 +140,7 @@ barplot((event_economic$DAMAGE / 1000000000), names.arg=event_economic$EVTYPE,
         las=3, 
         col = "blue",
         ylim=c(0,180),
-        main="Top 10 Events causing the most damages to properties and crop since 1950 across USA")
+        main="Top 10 Events with the greatest economic consequences")
 
 ```
 
