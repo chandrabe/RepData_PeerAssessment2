@@ -70,21 +70,39 @@ noaa$CROPDMGEXP <- sub("^K$", "1000", noaa$CROPDMGEXP, ignore.case = TRUE)
 noaa$CROPDMGEXP <- sub("^M$", "1000000", noaa$CROPDMGEXP, ignore.case = TRUE)
 noaa$CROPDMGEXP <- sub("^B$", "1000000000", noaa$CROPDMGEXP, ignore.case = TRUE)
 noaa$CROPDMGEXP <- as.numeric(noaa$CROPDMGEXP)
+```
 
-
-humanDmg.event <- noaa %>%
-                    filter((FATALITIES + INJURIES) > 0) %>%
+```{r}
+event_fatalities <- noaa %>%
+                    filter(FATALITIES > 0) %>%
                     group_by(EVTYPE) %>%
-                    summarise( HUMANDMG = sum((FATALITIES + INJURIES), na.rm = TRUE)) %>%
-                    arrange(desc(HUMANDMG)) %>%
+                    summarise( FATALITIES = sum(FATALITIES, na.rm = TRUE)) %>%
+                    arrange(desc(FATALITIES)) %>%
                     head(10)
 
 
-barplot(humanDmg.event$HUMANDMG, names.arg=humanDmg.event$EVTYPE, 
-        ylab="Fatalities and Injuries", 
+barplot(event_fatalities$FATALITIES, names.arg=event_fatalities$EVTYPE, 
+        ylab="Fatalities", 
         las=3, 
         col = "blue",
-        main="Events most harmful to population health")
+        main="Top 10 Events causing most fatalities")
+
+```
+
+```{r}
+
+event_injuries <- noaa %>%
+                    filter(INJURIES > 0) %>%
+                    group_by(EVTYPE) %>%
+                    summarise( INJURIES = sum(INJURIES, na.rm = TRUE)) %>%
+                    arrange(desc(INJURIES)) %>%
+                    head(10)
+
+barplot(event_injuries$INJURIES, names.arg=event_injuries$EVTYPE, 
+        ylab="Injuries", 
+        las=3, 
+        col = "blue",
+        main="Top 10 Events causing most injuries")
 
 ```
 
