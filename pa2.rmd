@@ -85,12 +85,11 @@ barplot(event_fatalities$FATALITIES, names.arg=event_fatalities$EVTYPE,
         ylab="Fatalities", 
         las=3, 
         col = "blue",
-        main="Top 10 Events causing most fatalities")
+        main="Top 10 Events causing the most fatalities")
 
 ```
 
 ```{r}
-
 event_injuries <- noaa %>%
                     filter(INJURIES > 0) %>%
                     group_by(EVTYPE) %>%
@@ -102,7 +101,23 @@ barplot(event_injuries$INJURIES, names.arg=event_injuries$EVTYPE,
         ylab="Injuries", 
         las=3, 
         col = "blue",
-        main="Top 10 Events causing most injuries")
+        main="Top 10 Events causing the most injuries")
+
+```
+
+```{r}
+event_economic <- noaa %>%
+                    mutate(PROPCROPDMG = ((PROPDMG * PROPDMGEXP) + (CROPDMG * CROPDMGEXP)) ) %>%
+                    group_by(EVTYPE) %>%
+                    summarise( DAMAGE = sum(PROPCROPDMG, na.rm = TRUE)) %>%
+                    arrange(desc(DAMAGE)) %>%
+                    head(10)
+
+barplot(event_economic$DAMAGE, names.arg=event_economic$EVTYPE, 
+        ylab="Damages Amount in USD", 
+        las=3, 
+        col = "blue",
+        main="Top 10 Events causing the most damages to properties and crop")
 
 ```
 
